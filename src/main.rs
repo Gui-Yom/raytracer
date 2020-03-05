@@ -3,21 +3,15 @@ extern crate nalgebra_glm as glm;
 extern crate pbr;
 
 use std::env;
+use std::f32::MAX;
 
 use glm::Vec3;
 use image::{ImageBuffer, Rgb};
 use pbr::ProgressBar;
 
-struct Ray {
-    origin: Vec3,
-    dir: Vec3,
-}
+use crate::geom::{HitRecord, Hittable, HittableList, Ray, Sphere};
 
-impl Ray {
-    fn point(&self, t: f32) -> Vec3 {
-        self.origin + self.dir * t
-    }
-}
+mod geom;
 
 fn main() {
     println!("GuiYom's raytracer v0.1.0");
@@ -39,12 +33,19 @@ fn main() {
     let vertical = glm::vec3(0.0, 2.0, 0.0);
     let origin = glm::vec3(0.0, 0.0, 0.0);
 
+    let world = HittableList {
+        list: vec![
+            Box::new(Sphere { center: glm::vec3(0.0, 0.0, -1.0), radius: 0.5 }),
+            Box::new(Sphere { center: glm::vec3(0.0, -100.5, -1.0), radius: 100.0 })
+        ]
+    };
+
     for (i, j, pixel) in buf.enumerate_pixels_mut() {
         let r = Ray {
             origin,
             dir: lower_left_corner + horizontal * (i as f32 / width as f32) + vertical * (j as f32 / height as f32),
         };
-        let color = color(&r);
+        let color = color(&r, &world);
         *pixel = Rgb([(color.data[0] * 255.0) as u8, (color.data[1] * 255.0) as u8, (color.data[2] * 255.0) as u8]);
         if total % update_rate == 0 {
             pb.set(total as u64);
@@ -56,24 +57,10 @@ fn main() {
     pb.finish_println("OK !")
 }
 
-fn hit_sphere(r: &Ray, center: &Vec3, radius: f32) -> f32 {
-    let oc = r.origin - center;
-    let a = glm::length2(&r.dir);
-    let b = 2.0 * glm::dot(&oc, &r.dir);
-    let c = glm::length2(&oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
-    }
-}
-
-fn color(r: &Ray) -> Vec3 {
-    let t = hit_sphere(r, &glm::vec3(0.0, 0.0, -1.0), 0.5);
-    if t > 0.0 {
-        let N = glm::normalize(&(r.point(t) - glm::vec3(0.0, 0.0, -1.0)));
-        (glm::vec3(1.0, 1.0, 1.0) + N) * 0.5
+fn color(r: &Ray, hittable: &dyn Hittable) -> Vec3 {
+    let hit_record = &mut HitRecord::new();
+    if hittable.hit(r, 0.0, MAX, hit_record) {
+        (glm::vec3(1.0, 1.0, 1.0) + hit_record.normal) * 0.5
     } else {
         let t: f32 = 0.5 * (glm::normalize(&r.dir).data[1] + 1.0);
         glm::vec3(0.5, 0.7, 1.0) * t + glm::vec3(1.0, 1.0, 1.0) * (1.0 - t)
