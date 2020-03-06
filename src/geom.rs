@@ -1,89 +1,78 @@
-extern crate nalgebra_glm as glm;
+use std::rc::Rc;
 
-use nalgebra_glm::Vec3;
+use cgmath::InnerSpace;
 
-pub struct Ray {
-    pub origin: Vec3,
-    pub dir: Vec3,
+use crate::camera::Ray;
+use crate::material::{Lambertian, Material};
+use crate::Vec3;
+
+pub trait Object {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit>;
 }
 
-impl Ray {
-    pub fn point(&self, t: f32) -> Vec3 {
-        self.origin + self.dir * t
-    }
-}
-
-pub struct HitRecord {
-    t: f32,
-    p: Vec3,
+pub struct Hit {
+    pub t: f32,
+    pub p: Vec3,
     pub normal: Vec3,
+    pub material: Rc<dyn Material>,
 }
 
-impl HitRecord {
-    pub fn new() -> HitRecord {
-        HitRecord {
-            t: 0.0,
-            p: glm::vec3(0.0, 0.0, 0.0),
-            normal: glm::vec3(0.0, 0.0, 0.0),
-        }
-    }
+pub struct Scene {
+    pub objects: Vec<Box<dyn Object>>
 }
 
-pub trait Hittable {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, record: &mut HitRecord) -> bool;
-}
-
-pub struct HittableList {
-    pub list: Vec<Box<dyn Hittable>>
-}
-
-impl Hittable for HittableList {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, record: &mut HitRecord) -> bool {
-        let mut has_hit = false;
-        let mut temp_record = HitRecord::new();
+impl Object for Scene {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
+        let mut closest_hit = Option::None;
         let mut closest = t_max;
-        for hittable in self.list.iter() {
-            if hittable.hit(r, t_min, closest, &mut temp_record) {
-                has_hit = true;
-                closest = temp_record.t;
-                record.t = temp_record.t;
-                record.p = temp_record.p;
-                record.normal = temp_record.normal;
+        for object in self.objects.iter() {
+            let hit = object.hit(ray, t_min, closest);
+            if hit.is_some() {
+                let hit = hit.unwrap();
+                closest = hit.t;
+                closest_hit = Option::Some(hit);
             }
         }
-        has_hit
+        closest_hit
     }
 }
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
+    pub material: Rc<dyn Material>,
 }
 
-impl Hittable for Sphere {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, record: &mut HitRecord) -> bool {
-        let oc = r.origin - self.center;
-        let a: f32 = glm::length2(&r.dir);
-        let b: f32 = glm::dot(&oc, &r.dir);
-        let c: f32 = glm::length2(&oc) - self.radius * self.radius;
+impl Object for Sphere {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
+        let oc = ray.origin - self.center;
+        let a: f32 = ray.direction.dot(ray.direction);
+        let b: f32 = oc.dot(ray.direction);
+        let c: f32 = oc.dot(oc) - self.radius * self.radius;
         let discriminant = b * b - a * c;
         if discriminant > 0.0 {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
-                record.t = temp;
-                record.p = r.point(temp);
-                record.normal = (record.p - self.center) / self.radius;
+                let p = ray.point(temp);
+                return Option::Some(Hit {
+                    p,
+                    t: temp,
+                    normal: (p - self.center) / self.radius,
+                    material: self.material.clone(),
+                });
             } else {
                 temp = (-b + discriminant.sqrt()) / a;
                 if temp > t_min && temp < t_max {
-                    record.t = temp;
-                    record.p = r.point(temp);
-                    record.normal = (record.p - self.center) / self.radius;
+                    let p = ray.point(temp);
+                    return Option::Some(Hit {
+                        p,
+                        t: temp,
+                        normal: (p - self.center) / self.radius,
+                        material: self.material.clone(),
+                    });
                 }
             }
-            true
-        } else {
-            false
         }
+        Option::None
     }
 }
