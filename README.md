@@ -2,7 +2,8 @@
 A very simple raytracer made in Rust following the excellent 
 "Raytracing in one weekend" by Peter Shirley.
 
-See the file `out.png` for the current advancement.
+Example output :
+![out.png](out.png)
 
 ### Usage
 Build with `cargo build --release` 

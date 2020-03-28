@@ -1,9 +1,8 @@
-use cgmath::InnerSpace;
 use rand::Rng;
+use ultraviolet::geometry::Ray;
+use ultraviolet::vec::Vec3;
 
-use crate::camera::Ray;
 use crate::geom::Hit;
-use crate::Vec3;
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> (bool, Vec3, Ray);
@@ -31,10 +30,9 @@ pub struct Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> (bool, Vec3, Ray) {
-        let reflected: Vec3 = reflection(&ray.direction, &hit.normal);
         let scattered = Ray {
             origin: hit.p,
-            direction: reflected,
+            direction: ray.direction.reflected(hit.normal),
         };
         let attenuation = self.albedo;
         (scattered.direction.dot(hit.normal) > 0.0, attenuation, scattered)
@@ -49,8 +47,4 @@ fn random_in_unit_sphere() -> Vec3 {
         p.dot(p) >= 1.0
     } {}
     p
-}
-
-fn reflection(i: &Vec3, n: &Vec3) -> Vec3 {
-    i - n * i.dot(*n) * 2.0
 }

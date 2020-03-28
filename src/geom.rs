@@ -1,10 +1,9 @@
 use std::rc::Rc;
 
-use cgmath::InnerSpace;
+use ultraviolet::geometry::Ray;
+use ultraviolet::vec::Vec3;
 
-use crate::camera::Ray;
 use crate::material::{Lambertian, Material};
-use crate::Vec3;
 
 pub trait Object {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit>;
@@ -53,17 +52,17 @@ impl Object for Sphere {
         if discriminant > 0.0 {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
-                let p = ray.point(temp);
+                let p = ray.at_distance(temp);
                 return Option::Some(Hit {
-                    p,
                     t: temp,
+                    p,
                     normal: (p - self.center) / self.radius,
                     material: self.material.clone(),
                 });
             } else {
                 temp = (-b + discriminant.sqrt()) / a;
                 if temp > t_min && temp < t_max {
-                    let p = ray.point(temp);
+                    let p = ray.at_distance(temp);
                     return Option::Some(Hit {
                         p,
                         t: temp,

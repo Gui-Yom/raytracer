@@ -1,13 +1,25 @@
 [package]
-name = "raytracer"
-version = "0.3.0"
+name = "softraytracer"
+version = "0.4.0"
 authors = ["LimelioN <memorial.limelion@gmail.com>"]
 edition = "2018"
+description = "A simple software raytracer for demonstration purposes"
+readme = "README.md"
+license = "MIT"
+keywords = ["graphics", "raytracing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "softraytracer"
+
 [dependencies]
-cgmath = "^0.17.0"
-image = "^0.23.0"
-pbr = "^1.0.2"
+ultraviolet = "^0.4.5"
 rand = "^0.7.3"
+
+[dev-dependencies]
+image = "^0.23.2"
+pbr = "1.0.2"
+
+[[example]]
+name = "demo"
