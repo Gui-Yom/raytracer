@@ -5,10 +5,10 @@ use image::{ImageBuffer, Rgb};
 use pbr::ProgressBar;
 use ultraviolet::Vec3;
 
-use softraytracer::Camera;
-use softraytracer::geom::{Scene, Sphere};
-use softraytracer::material::{Lambertian, Metal};
-use softraytracer::Raytracer;
+use softrays::Camera;
+use softrays::geom::{Scene, Sphere};
+use softrays::material::{Lambertian, Metal};
+use softrays::Raytracer;
 
 fn main() {
     println!("GuiYom's softraytracer v0.4.0");

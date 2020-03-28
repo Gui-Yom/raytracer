@@ -1,10 +1,10 @@
-### Raytracer
-A very simple raytracer made in Rust following the excellent 
-"Raytracing in one weekend" by Peter Shirley.
+### softrays
+A simple software raytracer built for education purposes.
+Inspired by the excellent "Raytracing in one weekend" by Peter Shirley.
 
-Example output :
+### Demo
+Run `cargo run [--release] --example demo <width> <height> <output file>`
+
+Will output something like :
+
 ![out.png](out.png)
-
-### Usage
-Build with `cargo build --release` 
-then run `raytracer <width> <height> <output file>`

@@ -1,9 +1,9 @@
 [package]
-name = "softraytracer"
+name = "softrays"
 version = "0.4.0"
 authors = ["LimelioN <memorial.limelion@gmail.com>"]
 edition = "2018"
-description = "A simple software raytracer for demonstration purposes"
+description = "Software raytracer"
 readme = "README.md"
 license = "MIT"
 keywords = ["graphics", "raytracing"]
@@ -11,7 +11,7 @@ keywords = ["graphics", "raytracing"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "softraytracer"
+name = "softrays"
 
 [dependencies]
 ultraviolet = "^0.4.5"
