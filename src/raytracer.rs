@@ -7,10 +7,13 @@ use ultraviolet::Vec3;
 use crate::camera::Camera;
 use crate::geom::{Object, Scene};
 
+/// The software raytracer
+/// Currently uses Monte-Carlo anti-aliasing
 pub struct Raytracer {
     pub camera: Camera,
     pub scene: Scene,
     pub mcaa: u32,
+    pub max_bounces: u32,
 }
 
 impl Raytracer {
@@ -22,7 +25,7 @@ impl Raytracer {
                 let mut color: Vec3 = Vec3::zero();
                 // Monte carlo multi sampling for anti-aliasing
                 for _ in 0..self.mcaa {
-                    color += Raytracer::compute_color(&self.camera.cast_ray(i as f32 + rng.gen::<f32>(), j as f32 + rng.gen::<f32>()), &self.scene, 16, 0);
+                    color += Raytracer::compute_color(&self.camera.cast_ray(i as f32 + rng.gen::<f32>(), j as f32 + rng.gen::<f32>()), &self.scene, self.max_bounces, 0);
                 }
                 color /= self.mcaa as f32;
                 // Gamma correction

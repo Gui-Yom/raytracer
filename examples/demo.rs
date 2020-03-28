@@ -54,6 +54,7 @@ fn main() {
         camera,
         scene,
         mcaa: 16,
+        max_bounces: 16,
     };
 
     raytracer.render_stream(|x, y, color| {
