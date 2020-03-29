@@ -2,7 +2,7 @@ use rand::Rng;
 use ultraviolet::geometry::Ray;
 use ultraviolet::vec::Vec3;
 
-use crate::geom::Hit;
+use crate::world::Hit;
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> (bool, Vec3, Ray);

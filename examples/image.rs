@@ -1,17 +1,18 @@
 use std::env;
 use std::rc::Rc;
+use std::time::Duration;
 
 use image::{ImageBuffer, Rgb};
 use pbr::ProgressBar;
 use ultraviolet::Vec3;
 
-use softrays::{AntiAliasing, Camera};
-use softrays::geom::{Scene, Sphere};
+use softrays::{Camera, MontecarloSS};
 use softrays::material::{Lambertian, Metal};
 use softrays::Raytracer;
+use softrays::world::{Scene, Sphere};
 
 fn main() {
-    println!("GuiYom's softraytracer v0.4.0");
+    println!("GuiYom's softraytracer v0.5.0");
     // Parsing arguments
     let args: Vec<String> = env::args().collect();
     let width: u32 = args[1].parse().unwrap();
@@ -20,16 +21,14 @@ fn main() {
 
     // Progress bar stuff
     let count = width * height;
-    let update_rate: u32 = 1000;
-    let mut total: u32 = 0;
     let mut pb = ProgressBar::new(count as u64);
     pb.format("[=> ]");
     pb.message("Casting rays : ");
+    pb.set_width(Some(30));
+    pb.set_max_refresh_rate(Some(Duration::from_millis(500)));
 
     let mut image = ImageBuffer::new(width, height);
-    let camera = Camera::new(Vec3::new(0.0, 0.0, 0.5), width, height, 90.0);
 
-    // World objects
     let scene = Scene {
         objects: vec![
             Box::new(Sphere {
@@ -43,30 +42,23 @@ fn main() {
                 material: Rc::new(Metal { albedo: Vec3::new(0.2, 0.2, 0.2) }),
             }),
             Box::new(Sphere {
-                center: Vec3::new(0.0, 112.0, -1.0),
+                center: Vec3::new(0.0, -112.0, -1.0),
                 radius: 100.0,
                 material: Rc::new(Lambertian { albedo: Vec3::new(0.0, 0.5, 0.5) }),
             })
         ]
     };
 
-    let raytracer = Raytracer {
-        camera,
-        scene,
-        aa: AntiAliasing::NONE,
-        aa_amount: 4,
-        max_bounces: 16,
+    let mut raytracer = Raytracer {
+        camera: Camera::new(Vec3::new(0.0, 0.0, 0.5), width, height, 90.0),
+        ss: Box::new(MontecarloSS::new(16)),
+        max_bounces: 8,
     };
 
-    raytracer.render_stream(|x, y, color| {
+    raytracer.render_stream(&scene, |x, y, color| {
         image.put_pixel(x, y, Rgb([(color.0 * 255.0) as u8, (color.1 * 255.0) as u8, (color.2 * 255.0) as u8]));
-        if total % update_rate == 0 {
-            pb.set(total as u64);
-        }
-        total += 1;
+        pb.inc();
     });
-
-    image = image::imageops::flip_vertical(&image);
     image.save(&args[3]).unwrap();
     pb.finish_println("OK !")
 }
