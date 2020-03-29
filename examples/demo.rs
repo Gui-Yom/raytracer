@@ -5,7 +5,7 @@ use image::{ImageBuffer, Rgb};
 use pbr::ProgressBar;
 use ultraviolet::Vec3;
 
-use softrays::Camera;
+use softrays::{AntiAliasing, Camera};
 use softrays::geom::{Scene, Sphere};
 use softrays::material::{Lambertian, Metal};
 use softrays::Raytracer;
@@ -53,12 +53,13 @@ fn main() {
     let raytracer = Raytracer {
         camera,
         scene,
-        mcaa: 16,
+        aa: AntiAliasing::NONE,
+        aa_amount: 4,
         max_bounces: 16,
     };
 
     raytracer.render_stream(|x, y, color| {
-        image.put_pixel(x, y, Rgb([(color[0] * 255.0) as u8, (color[1] * 255.0) as u8, (color[2] * 255.0) as u8]));
+        image.put_pixel(x, y, Rgb([(color.0 * 255.0) as u8, (color.1 * 255.0) as u8, (color.2 * 255.0) as u8]));
         if total % update_rate == 0 {
             pb.set(total as u64);
         }
