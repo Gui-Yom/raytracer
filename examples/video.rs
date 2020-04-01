@@ -7,11 +7,12 @@ use std::time::Duration;
 use image::{Delay, Frame, ImageBuffer, Rgba};
 use image::gif::Encoder;
 use pbr::ProgressBar;
+use ultraviolet::geometry::Plane as UPlane;
 use ultraviolet::Vec3;
 
 use softrays::{Camera, MontecarloSS, Raytracer};
 use softrays::material::{Lambertian, Metal};
-use softrays::world::{Scene, Sphere};
+use softrays::world::{Plane, Scene, Sphere};
 
 fn main() {
     // Parsing arguments
@@ -25,7 +26,6 @@ fn main() {
     let mut pb = ProgressBar::new(frame_count as u64);
     pb.format("[=> ]");
     pb.message("Computing gif frames : ");
-    pb.set_width(Some(20));
     pb.set_max_refresh_rate(Some(Duration::from_millis(500)));
 
     let mut scene = Scene {
@@ -38,20 +38,19 @@ fn main() {
             Box::new(Sphere {
                 center: Vec3::new(6.0, 1.0, -7.0),
                 radius: 3.0,
-                material: Rc::new(Metal { albedo: Vec3::new(0.2, 0.2, 0.2) }),
+                material: Rc::new(Metal { albedo: Vec3::new(0.2, 0.2, 0.2), fuzzyness: 0.04 }),
             }),
-            Box::new(Sphere {
-                center: Vec3::new(0.0, -112.0, -1.0),
-                radius: 100.0,
+            Box::new(Plane {
+                uplane: UPlane { normal: Default::default(), bias: 0.0 },
                 material: Rc::new(Lambertian { albedo: Vec3::new(0.0, 0.5, 0.5) }),
             })
         ]
     };
 
     let mut raytracer = Raytracer {
-        camera: Camera::new(Vec3::new(0.0, 0.0, 0.5), width, height, 90.0),
+        camera: Camera::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 3.0), width, height, 90.0),
         ss: Box::new(MontecarloSS::new(8)),
-        max_bounces: 4,
+        max_bounces: 6,
     };
 
     let mut file = File::create(&args[4]).unwrap();

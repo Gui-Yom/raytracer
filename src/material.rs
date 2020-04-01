@@ -18,10 +18,9 @@ pub struct Lambertian {
 
 impl Material for Lambertian {
     fn scatter(&self, _ray: &Ray, hit: &Hit) -> (bool, Vec3, Ray) {
-        let mut target = hit.normal + random_unit_vector();
         let scattered = Ray {
             origin: hit.p,
-            direction: target,
+            direction: hit.normal + random_unit_vector(),
         };
         let attenuation = self.albedo;
         (true, attenuation, scattered)

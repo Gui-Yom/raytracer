@@ -7,7 +7,7 @@ use pbr::ProgressBar;
 use ultraviolet::geometry::Plane as UPlane;
 use ultraviolet::Vec3;
 
-use softrays::{Camera, MontecarloSS};
+use softrays::{Camera, MontecarloSS, OversamplingSS};
 use softrays::material::{Dielectric, Lambertian, Metal};
 use softrays::Raytracer;
 use softrays::world::{Plane, Scene, Sphere};
@@ -32,13 +32,18 @@ fn main() {
         objects: vec![
             Box::new(Sphere {
                 center: Vec3::new(-5.0, 0.0, -4.0),
-                radius: 5.0,
+                radius: 3.0,
                 material: Rc::new(Lambertian { albedo: Vec3::new(0.9, 0.1, 0.1) }),
             }),
             Box::new(Sphere {
                 center: Vec3::new(6.0, 1.0, -7.0),
                 radius: 3.0,
                 material: Rc::new(Metal { albedo: Vec3::new(1., 1., 1.), fuzzyness: 0.05 }),
+            }),
+            Box::new(Sphere {
+                center: Vec3::new(-1.0, 1.0, -7.5),
+                radius: 2.0,
+                material: Rc::new(Dielectric { refract_idx: 1.5 }),
             }),
             Box::new(Plane {
                 uplane: UPlane {
@@ -51,7 +56,7 @@ fn main() {
     };
 
     let mut raytracer = Raytracer {
-        camera: Camera::new(Vec3::new(0.0, 0.0, 0.5), width, height, 90.0),
+        camera: Camera::new(Vec3::new(0.0, 5.0, 0.0), Vec3::new(0.0, 0.0, -3.0), width, height, 90.0),
         ss: Box::new(MontecarloSS::new(16)),
         max_bounces: 8,
     };
