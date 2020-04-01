@@ -35,6 +35,7 @@ impl Object for Triangle {
                 p: ray.at_distance(t),
                 normal: (-n).normalized(),
                 material: self.material.clone(),
+                front: true
             })
         }
     }

@@ -14,7 +14,6 @@ use softrays::material::{Lambertian, Metal};
 use softrays::world::{Scene, Sphere};
 
 fn main() {
-    println!("GuiYom's softraytracer v0.5.0");
     // Parsing arguments
     let args: Vec<String> = env::args().collect();
     let width: u32 = args[1].parse().unwrap();

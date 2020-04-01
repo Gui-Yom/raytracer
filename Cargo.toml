@@ -1,6 +1,6 @@
 [package]
 name = "softrays"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["LimelioN <memorial.limelion@gmail.com>"]
 edition = "2018"
 description = "Software raytracer"
@@ -14,7 +14,7 @@ keywords = ["graphics", "raytracing"]
 name = "softrays"
 
 [dependencies]
-ultraviolet = "0.4.5"
+ultraviolet = { git = "https://github.com/termhn/ultraviolet", rev = "f09d279f99fbb1e941952575afa1f539a2b9a901" }
 rand = "0.7.3"
 rayon = "1.3.0"
 

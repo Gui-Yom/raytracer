@@ -3,7 +3,6 @@ use std::rc::Rc;
 
 use ultraviolet::geometry::Plane as UPlane;
 use ultraviolet::geometry::Ray;
-use ultraviolet::Vec3;
 
 use crate::material::Material;
 use crate::world::{Hit, Object};
@@ -25,6 +24,7 @@ impl Object for Plane {
                 p: ray.at_distance(d),
                 normal: self.uplane.normal,
                 material: self.material.clone(),
+                front: true
             })
         }
     }

@@ -38,13 +38,13 @@ impl Raytracer {
 }
 
 /// Compute the color for a given ray
-fn compute_color(ray: &Ray, world: &dyn Object, maxdepth: u32, depth: u32) -> Vec3 {
+fn compute_color(ray: &Ray, world: &dyn Object, depth: u32) -> Vec3 {
     let hit = world.hit(ray, 0.001, MAX);
     if hit.is_some() {
         let hit = hit.unwrap();
         let (scatter, attenuation, scattered) = hit.material.scatter(ray, &hit);
-        if depth < maxdepth && scatter {
-            attenuation * compute_color(&scattered, world, maxdepth, depth + 1)
+        if depth > 0 && scatter {
+            attenuation * compute_color(&scattered, world, depth - 1)
         } else {
             Vec3::zero()
         }
@@ -62,7 +62,7 @@ pub struct BasicSS;
 
 impl SamplingStrategy for BasicSS {
     fn sample(&mut self, camera: &Camera, x: u32, y: u32, world: &dyn Object, max_bounces: u32) -> Vec3 {
-        compute_color(&camera.cast_ray(x as f32, y as f32), world, max_bounces, 0)
+        compute_color(&camera.cast_ray(x as f32, y as f32), world, max_bounces)
     }
 }
 
@@ -87,8 +87,7 @@ impl SamplingStrategy for MontecarloSS {
             color += compute_color(
                 &camera.cast_ray(x as f32 + self.rng.gen::<f32>(), y as f32 + self.rng.gen::<f32>()),
                 world,
-                max_bounces,
-                0);
+                max_bounces);
         }
         // avg division
         color.apply(|v: f32| v.div(self.quant as f32));
@@ -117,8 +116,7 @@ impl SamplingStrategy for OversamplingSS {
                     &camera.cast_ray(x as f32 + k as f32 / self.sqrt_quant as f32,
                                      y as f32 + l as f32 / self.sqrt_quant as f32),
                     world,
-                    max_bounces,
-                    0);
+                    max_bounces);
             }
         }
         // avg division

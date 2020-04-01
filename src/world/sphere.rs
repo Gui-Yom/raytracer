@@ -20,33 +20,36 @@ impl Object for Sphere {
         let b: f32 = oc.dot(ray.direction);
         let c: f32 = oc.dot(oc) - self.radius * self.radius;
         let discriminant = b * b - a * c;
-        if discriminant > 0.0 {
+        if discriminant > 0. {
             let mut temp = (-b - discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
-                let p = ray.at_distance(temp);
-                return Option::Some(Hit {
-                    t: temp,
-                    p,
-                    normal: (p - self.center) / self.radius,
-                    material: self.material.clone(),
-                });
+                return self.compute_hit(ray, temp);
             } else {
                 temp = (-b + discriminant.sqrt()) / a;
                 if temp > t_min && temp < t_max {
-                    let p = ray.at_distance(temp);
-                    return Option::Some(Hit {
-                        p,
-                        t: temp,
-                        normal: (p - self.center) / self.radius,
-                        material: self.material.clone(),
-                    });
+                    return self.compute_hit(ray, temp);
                 }
             }
         }
-        Option::None
+        None
     }
 
     fn as_any(&mut self) -> &mut dyn Any {
         self
+    }
+}
+
+impl Sphere {
+    fn compute_hit(&self, ray: &Ray, temp: f32) -> Option<Hit> {
+        let p = ray.at_distance(temp);
+        let normal = (p - self.center) / self.radius;
+        let front = ray.direction.dot(normal) < 0.;
+        Some(Hit {
+            t: temp,
+            p,
+            normal: if front { normal } else { -normal },
+            material: self.material.clone(),
+            front,
+        })
     }
 }

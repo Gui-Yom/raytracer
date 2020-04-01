@@ -26,4 +26,5 @@ pub struct Hit {
     pub p: Vec3,
     pub normal: Vec3,
     pub material: Rc<dyn Material>,
+    pub front: bool,
 }
