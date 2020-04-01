@@ -4,12 +4,13 @@ use std::time::Duration;
 
 use image::{ImageBuffer, Rgb};
 use pbr::ProgressBar;
+use ultraviolet::geometry::Plane as UPlane;
 use ultraviolet::Vec3;
 
 use softrays::{Camera, MontecarloSS};
 use softrays::material::{Lambertian, Metal};
 use softrays::Raytracer;
-use softrays::world::{Scene, Sphere};
+use softrays::world::{Plane, Scene, Sphere, Triangle};
 
 fn main() {
     println!("GuiYom's softraytracer v0.5.0");
@@ -31,9 +32,10 @@ fn main() {
 
     let scene = Scene {
         objects: vec![
-            Box::new(Sphere {
-                center: Vec3::new(-5.0, 0.0, -4.0),
-                radius: 5.0,
+            Box::new(Triangle {
+                v0: Vec3::new(-4., 0., -0.5),
+                v1: Vec3::new(-2., 2., -1.5),
+                v2: Vec3::new(0., 0., -0.5),
                 material: Rc::new(Lambertian { albedo: Vec3::new(0.8, 0.2, 0.3) }),
             }),
             Box::new(Sphere {
@@ -41,9 +43,11 @@ fn main() {
                 radius: 3.0,
                 material: Rc::new(Metal { albedo: Vec3::new(0.2, 0.2, 0.2) }),
             }),
-            Box::new(Sphere {
-                center: Vec3::new(0.0, -112.0, -1.0),
-                radius: 100.0,
+            Box::new(Plane {
+                uplane: UPlane {
+                    normal: Vec3::new(0.0, 1.0, 0.0),
+                    bias: 2.0,
+                },
                 material: Rc::new(Lambertian { albedo: Vec3::new(0.0, 0.5, 0.5) }),
             })
         ]

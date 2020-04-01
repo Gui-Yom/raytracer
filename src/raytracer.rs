@@ -31,6 +31,10 @@ impl Raytracer {
             }
         }
     }
+
+    pub fn camera_mut(&mut self) -> &mut Camera {
+        &mut self.camera
+    }
 }
 
 /// Compute the color for a given ray

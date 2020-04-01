@@ -1,6 +1,6 @@
 [package]
 name = "softrays"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["LimelioN <memorial.limelion@gmail.com>"]
 edition = "2018"
 description = "Software raytracer"
